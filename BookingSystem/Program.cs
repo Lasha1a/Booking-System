@@ -1,4 +1,5 @@
 using BookingSystem;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); //added scalar Ui
 }
 
 app.UseHttpsRedirection();
