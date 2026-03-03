@@ -18,5 +18,5 @@ public class ServiceProvider
     //navigation properties
     public ICollection<WorkingHours> WorkingHours { get; set; } = new List<WorkingHours>();
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
-    public ICollection<BlockedTimes> BlockedTimes { get; set; } = new List<BlockedTimes>();
+    public ICollection<BlockedTime> BlockedTimes { get; set; } = new List<BlockedTime>();
 }
