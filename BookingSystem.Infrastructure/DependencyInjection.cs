@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,15 @@ namespace BookingSystem.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureDI(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureDI(this IServiceCollection services, IConfiguration configuration)
     {
+
+        //redis cache configuration
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = configuration["Redis:ConnectionString"];
+            options.InstanceName = configuration["Redis:InstanceName"];
+        });
         return services;
     }
 }

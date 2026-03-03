@@ -6,11 +6,11 @@ namespace BookingSystem;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddMainApiDI(this IServiceCollection services)
+    public static IServiceCollection AddMainApiDI(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddInfrastructureDI()
+        services.AddInfrastructureDI(configuration)
             .AddApplicationDI()
-            .AddPersistanceDI();
+            .AddPersistanceDI(configuration);
 
 
         return services;
