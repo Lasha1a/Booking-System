@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookingSystem.Persistence.Repositories;
+namespace BookingSystem.Persistence.Specifications;
 
 //basespecification helps us build database query rules without writing raw linq everytime
 public class BaseSpecification<T> : ISpecification<T>
