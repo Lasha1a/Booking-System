@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using BookingSystem.Application.Interfaces.Auth;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,9 @@ public static class DependencyInjection
             options.Configuration = configuration["Redis:ConnectionString"];
             options.InstanceName = configuration["Redis:InstanceName"];
         });
+
+        services.AddScoped<IPasswordHasher, IPasswordHasher>();
+
         return services;
     }
 }
