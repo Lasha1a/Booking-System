@@ -1,4 +1,5 @@
-﻿using BookingSystem.Domain.Enums;
+﻿using BookingSystem.Domain.Common;
+using BookingSystem.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace BookingSystem.Domain.Entities;
 
-public class Appointment
+public class Appointment : BaseEntity
 {
-    public Guid Id { get; set; }
     public Guid ProviderId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string CustomerEmail { get; set; } = string.Empty;
