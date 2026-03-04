@@ -1,6 +1,8 @@
 ﻿using BookingSystem.Application.Interfaces.GenericRepo;
+using BookingSystem.Application.Interfaces.Specifications;
 using BookingSystem.Domain.Common;
 using BookingSystem.Persistence.Data;
+using BookingSystem.Persistence.Specifications;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -37,4 +39,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
     public void Update(T entity) =>
           _context.Set<T>().Update(entity);
+
+    //using the specification pattern to get an entity based on the criteria defined in the specification
+    public async Task<T?> GetEntityWithSpec(ISpecification<T> spec) =>
+        await SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec)
+        .FirstOrDefaultAsync();
+
+    //using the specification pattern to get a list of entities based on the criteria defined in the specification
+    public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec) =>
+        await SpecificationEvaluator<T>.GetQuery(_context.Set<T>(), spec)
+        .ToListAsync();
 }

@@ -1,4 +1,5 @@
-﻿using BookingSystem.Domain.Common;
+﻿using BookingSystem.Application.Interfaces.Specifications;
+using BookingSystem.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,7 @@ public interface IGenericRepository<T> where T : BaseEntity
     Task<T> AddAsync(T entity);
     void Update(T entity);
     void Delete(T entity);
+    Task<T?> GetEntityWithSpec(ISpecification<T> spec);
+    Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
 
 }

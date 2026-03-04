@@ -1,4 +1,6 @@
-﻿using BookingSystem.Persistence.Data;
+﻿using BookingSystem.Application.Interfaces.GenericRepo;
+using BookingSystem.Persistence.Data;
+using BookingSystem.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +19,8 @@ public static class DependencyInjection
 
         services.AddDbContext<DataContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         return services;
     }
