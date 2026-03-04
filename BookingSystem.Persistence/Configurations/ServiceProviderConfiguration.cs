@@ -25,6 +25,10 @@ public class ServiceProviderConfiguration : IEntityTypeConfiguration<ServiceProv
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(sp => sp.PasswordHash)
+            .IsRequired()
+            .HasMaxLength(255);
+
         builder.Property(sp => sp.Specialty)
             .IsRequired()
             .HasMaxLength(100);
