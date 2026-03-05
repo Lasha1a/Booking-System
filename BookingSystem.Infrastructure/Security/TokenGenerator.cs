@@ -22,7 +22,7 @@ public class TokenGenerator : ITokenGenerator
         _jwtSettings = jwtSettings.Value;
     }
 
-    public string GenerateToen(Guid providerId, string email, string name)
+    public string GenerateToken(Guid providerId, string email, string name)
     {
         var claims = new Claim[]
         {

@@ -2,8 +2,10 @@
 using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Auth;
 using BookingSystem.Infrastructure.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,9 +27,32 @@ public static class DependencyInjection
             options.InstanceName = configuration["Redis:InstanceName"];
         });
 
+        //jwt settings
         services.Configure<JwtSettings>(options =>
             configuration.GetSection("JwtSettings").Bind(options));
 
+
+        //jwt authentication
+        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+         {
+             options.TokenValidationParameters = new TokenValidationParameters
+             {
+                 ValidateIssuer = true,
+                 ValidateAudience = true,
+                 ValidateLifetime = true,
+                 ValidateIssuerSigningKey = true,
+                 ValidIssuer = jwtSettings!.Issuer,
+                 ValidAudience = jwtSettings.Audience,
+                 IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+             };
+         });
 
         services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
