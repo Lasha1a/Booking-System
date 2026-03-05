@@ -80,7 +80,7 @@ public class Appointment : BaseEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void Complete() 
+    public void Complete()
     {
         if (Status == AppointmentStatus.Cancelled)
             throw new InvalidOperationException("Cannot complete a cancelled appointment");
