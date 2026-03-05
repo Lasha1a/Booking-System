@@ -1,9 +1,12 @@
 ﻿using BookingSystem.Application.Interfaces.Auth;
+using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Auth;
+using BookingSystem.Infrastructure.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +25,11 @@ public static class DependencyInjection
             options.InstanceName = configuration["Redis:InstanceName"];
         });
 
+        services.Configure<JwtSettings>(options =>
+            configuration.GetSection("JwtSettings").Bind(options));
+
+
+        services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         return services;
