@@ -31,8 +31,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     public void Delete(T entity) =>
          _context.Set<T>().Remove(entity);
 
-    public async Task<IReadOnlyList<T>> GetAllAsync() =>
-        await _context.Set<T>().ToListAsync();
+    public IQueryable<T> GetAll() =>
+        _context.Set<T>().AsQueryable();
 
     public async Task<T?> GetByIdAsync(Guid id) =>
         await _context.Set<T>().FirstOrDefaultAsync(e => e.Id == id);
@@ -46,7 +46,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         .FirstOrDefaultAsync();
 
     //using the specification pattern to get a list of entities based on the criteria defined in the specification
-    public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec) =>
-        await SpecificationEvaluator<T>.GetQuery(_context.Set<T>(), spec)
-        .ToListAsync();
+    public IQueryable<T> GetQueryWithSpec(ISpecification<T> spec) =>
+        SpecificationEvaluator<T>.GetQuery(_context.Set<T>(), spec);
 }
