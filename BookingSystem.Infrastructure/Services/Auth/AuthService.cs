@@ -64,7 +64,7 @@ public class AuthService : IAuthService
         }
 
         var isPasswordValid = _passwordHasher.VerifyPassword(request.Password, provider.PasswordHash);
-        if (isPasswordValid)
+        if (!isPasswordValid)
         {
             throw new InvalidOperationException("Invalid email or password");
         }

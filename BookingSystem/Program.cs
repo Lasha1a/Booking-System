@@ -1,4 +1,5 @@
 using BookingSystem;
+using BookingSystem.MiddleWare;
 using FluentValidation.AspNetCore;
 using Scalar.AspNetCore;
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation(); //applies validations automatically
+builder.Services.AddTransient<GlobalExceptionHandler>(); //middleware service
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v1");
@@ -23,6 +25,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference(); //added scalar Ui
 }
 
+app.UseMiddleware<GlobalExceptionHandler>(); //middleware
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
