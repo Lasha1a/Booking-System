@@ -9,6 +9,6 @@ namespace BookingSystem.Application.Interfaces.Auth;
 
 public interface IAuthService
 {
-    Task<AuthResponse> RegisterAsync(RegisterUserRequest request);
+    Task RegisterAsync(RegisterUserRequest request);
     Task<AuthResponse> LoginAsync(LoginRequest request);
 }
