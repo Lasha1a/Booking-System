@@ -1,6 +1,8 @@
 ﻿using BookingSystem.Application.Interfaces.Auth;
+using BookingSystem.Application.Interfaces.Provider;
 using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Auth;
+using BookingSystem.Infrastructure.Services.Provider;
 using BookingSystem.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -57,6 +59,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IProviderService, ProviderService>();
 
         return services;
     }
