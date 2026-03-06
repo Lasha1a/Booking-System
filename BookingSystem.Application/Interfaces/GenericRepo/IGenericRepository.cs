@@ -13,6 +13,7 @@ public interface IGenericRepository<T> where T : BaseEntity
     Task<T?> GetByIdAsync(Guid id);
     IQueryable<T> GetAll(); //changed ireadonlylist to iqueryable
     Task<T> AddAsync(T entity);
+    Task<int> SaveChangesAsync();
     void Update(T entity);
     void Delete(T entity);
     Task<T?> GetEntityWithSpec(ISpecification<T> spec);

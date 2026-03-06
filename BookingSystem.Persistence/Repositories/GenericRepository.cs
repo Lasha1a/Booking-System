@@ -40,6 +40,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     public void Update(T entity) =>
           _context.Set<T>().Update(entity);
 
+    public async Task<int> SaveChangesAsync() =>
+          await _context.SaveChangesAsync();
+
     //using the specification pattern to get an entity based on the criteria defined in the specification
     public async Task<T?> GetEntityWithSpec(ISpecification<T> spec) =>
         await SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec)

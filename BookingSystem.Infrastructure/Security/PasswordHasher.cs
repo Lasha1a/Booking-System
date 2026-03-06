@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookingSystem.Infrastructure.Services.Auth;
+namespace BookingSystem.Infrastructure.Security;
 
 public class PasswordHasher : IPasswordHasher
 {

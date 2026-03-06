@@ -49,6 +49,7 @@ public class AuthService : IAuthService
             );
 
         await _repository.AddAsync(provider);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
