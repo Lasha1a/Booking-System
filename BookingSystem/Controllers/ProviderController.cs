@@ -1,11 +1,14 @@
 ﻿using BookingSystem.Application.DTOs.Provider;
 using BookingSystem.Application.Interfaces.Provider;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace BookingSystem.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ProviderController : ControllerBase
@@ -19,14 +22,15 @@ public class ProviderController : ControllerBase
 
     private Guid GetProviderIdFromToken()
     {
-        var providerIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if(providerIdClaim == null)
+        var providerIdClaim = User.FindFirst("sub")?.Value
+       ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (providerIdClaim == null)
         {
             throw new UnauthorizedAccessException("Invalid token");
         }
         return Guid.Parse(providerIdClaim);
     }
-
+    
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfile()
     {

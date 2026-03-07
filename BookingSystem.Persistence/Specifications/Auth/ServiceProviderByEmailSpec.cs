@@ -12,5 +12,8 @@ public class ServiceProviderByEmailSpec : BaseSpecification<ServiceProvider>
 
     // finds specific serviceprovider for matched email
     public ServiceProviderByEmailSpec(string email)
-        : base(sp => sp.Email.ToLower() == email.ToLower()) { }
+        : base(sp => sp.Email == email)
+    {
+
+    }
 }

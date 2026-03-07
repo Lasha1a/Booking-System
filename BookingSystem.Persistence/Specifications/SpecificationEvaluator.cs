@@ -16,7 +16,7 @@ public class SpecificationEvaluator<T> where T : BaseEntity
     {
         if (spec.Criteria != null)
         {
-            _ = query.Where(spec.Criteria);
+            query = query.Where(spec.Criteria);
         }
 
         query = spec.Includes.Aggregate(query,

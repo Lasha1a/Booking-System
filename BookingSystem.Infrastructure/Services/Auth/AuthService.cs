@@ -30,10 +30,10 @@ public class AuthService : IAuthService
     {
         //checking if email exists
         var existingProvider = await _repository
-            .GetQueryWithSpec(new ServiceProviderByEmailSpec(request.Email))
-            .FirstOrDefaultAsync();
+             .GetQueryWithSpec(new ServiceProviderByEmailSpec(request.Email))
+             .FirstOrDefaultAsync();
 
-        if(existingProvider != null)
+        if (existingProvider != null)
         {
             throw new InvalidOperationException("email already exists");
         }
