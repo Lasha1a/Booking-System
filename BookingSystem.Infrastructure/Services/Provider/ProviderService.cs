@@ -51,4 +51,15 @@ public class ProviderService : IProviderService
         _repository.Update(provider);
         await _repository.SaveChangesAsync();
     }
+
+    public async Task DeleteProfileAsync(Guid providerId)
+    {
+        var provider = await _repository.GetByIdAsync(providerId);
+
+        if (provider == null)
+            throw new KeyNotFoundException("Provider not found");
+
+        _repository.Delete(provider);
+        await _repository.SaveChangesAsync();
+    }
 }

@@ -11,4 +11,5 @@ public interface IProviderService
 {
     Task<ProviderResponse> GetProfileAsync(Guid providerId);
     Task UpdateProfileAsync(Guid providerId, UpdateProviderRequest request);
+    Task DeleteProfileAsync(Guid providerId);
 }

@@ -46,4 +46,12 @@ public class ProviderController : ControllerBase
         await _providerService.UpdateProfileAsync(providerId, request);
         return Ok("Profile updated successfully");
     }
+
+    [HttpDelete("profile")]
+    public async Task<IActionResult> DeleteProfile()
+    {
+        var providerId = GetProviderIdFromToken();
+        await _providerService.DeleteProfileAsync(providerId);
+        return Ok("Profile deleted successfully");
+    }
 }
