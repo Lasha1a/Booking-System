@@ -22,4 +22,8 @@
     <ProjectReference Include="..\BookingSystem.Persistence\BookingSystem.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\WorkingHours\" />
+  </ItemGroup>
+
 </Project>
