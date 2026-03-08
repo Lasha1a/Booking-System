@@ -1,8 +1,10 @@
 ﻿using BookingSystem.Application.Interfaces.Auth;
 using BookingSystem.Application.Interfaces.Provider;
+using BookingSystem.Application.Interfaces.WorkingHours;
 using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Auth;
 using BookingSystem.Infrastructure.Services.Provider;
+using BookingSystem.Infrastructure.Services.WorkingHour;
 using BookingSystem.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -60,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IProviderService, ProviderService>();
+        services.AddScoped<IWorkingHoursService, WorkingHoursService>();
 
         return services;
     }
