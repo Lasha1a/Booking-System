@@ -10,7 +10,7 @@ namespace BookingSystem.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class WorkingHoursController : ControllerBase
+public class WorkingHoursController : BaseController
 {
     private readonly IWorkingHoursService _workingHoursService;
 
@@ -19,16 +19,6 @@ public class WorkingHoursController : ControllerBase
         _workingHoursService = workingHoursService;
     }
 
-    private Guid GetProviderIdFromToken() // private method to get usdr from token itself
-    {
-        var providerIdClaim = User.FindFirst("sub")?.Value
-            ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (providerIdClaim == null)
-            throw new UnauthorizedAccessException("Invalid token");
-
-        return Guid.Parse(providerIdClaim);
-    }
 
     [HttpPost("add-working-hour")]
     public async Task<IActionResult> AddWorkingHours([FromBody] AddWorkingHoursRequest request)

@@ -11,7 +11,7 @@ namespace BookingSystem.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class ProviderController : ControllerBase
+public class ProviderController : BaseController
 {
     private readonly IProviderService _providerService;
 
@@ -20,16 +20,7 @@ public class ProviderController : ControllerBase
         _providerService = providerService;
     }
 
-    private Guid GetProviderIdFromToken()
-    {
-        var providerIdClaim = User.FindFirst("sub")?.Value
-       ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (providerIdClaim == null)
-        {
-            throw new UnauthorizedAccessException("Invalid token");
-        }
-        return Guid.Parse(providerIdClaim);
-    }
+
     
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfile()
