@@ -78,7 +78,7 @@ public class BlockedTimeService : IBlockedTimeService
         if (overlap != null)
             throw new InvalidOperationException("Blocked time overlaps with an existing blocked time");
 
-        blockedTime.UpdateDates(request.StartDate, request.EndDate);
+        blockedTime.UpdateDates(request.StartDate, request.EndDate, request.Reason);
 
         _repository.Update(blockedTime);
         await _repository.SaveChangesAsync();

@@ -32,9 +32,10 @@ public class BlockedTime : BaseEntity
         };
     }
 
-    public void UpdateDates(DateOnly startDate, DateOnly endDate)
+    public void UpdateDates(DateOnly startDate, DateOnly endDate, string reason)
     {
         StartDate = startDate;
         EndDate = endDate;
+        Reason = reason;
     }
 }
