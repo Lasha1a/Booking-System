@@ -1,8 +1,10 @@
 ﻿using BookingSystem.Application.Interfaces.Auth;
+using BookingSystem.Application.Interfaces.BlockedHours;
 using BookingSystem.Application.Interfaces.Provider;
 using BookingSystem.Application.Interfaces.WorkingHours;
 using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Auth;
+using BookingSystem.Infrastructure.Services.BlockedHours;
 using BookingSystem.Infrastructure.Services.Provider;
 using BookingSystem.Infrastructure.Services.WorkingHour;
 using BookingSystem.Infrastructure.Settings;
@@ -63,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IProviderService, ProviderService>();
         services.AddScoped<IWorkingHoursService, WorkingHoursService>();
+        services.AddScoped<IBlockedTimeService, BlockedTimeService>();
 
         return services;
     }
