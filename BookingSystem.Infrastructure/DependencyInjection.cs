@@ -14,12 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BookingSystem.Infrastructure;
 
@@ -61,6 +56,10 @@ public static class DependencyInjection
                 Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
              };
          });
+
+        //smtp register
+        services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
+
 
         services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
