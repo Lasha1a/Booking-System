@@ -5,6 +5,8 @@ using BookingSystem.Application.Interfaces.Email;
 using BookingSystem.Application.Interfaces.Notification;
 using BookingSystem.Application.Interfaces.Provider;
 using BookingSystem.Application.Interfaces.WorkingHours;
+using Microsoft.Extensions.Hosting;
+using BookingSystem.Infrastructure.BackgroundServices;
 using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Appointments;
 using BookingSystem.Infrastructure.Services.Auth;
@@ -75,6 +77,9 @@ public static class DependencyInjection
 
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<INotificationService, NotificationService>();
+
+        //background worker
+        services.AddHostedService<AppointmentCleanupService>();
 
         return services;
     }
