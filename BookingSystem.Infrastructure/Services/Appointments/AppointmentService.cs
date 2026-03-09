@@ -1,6 +1,7 @@
 ﻿using BookingSystem.Application.DTOs.Appointment;
 using BookingSystem.Application.Interfaces.Appointments;
 using BookingSystem.Application.Interfaces.GenericRepo;
+using BookingSystem.Application.Interfaces.Notification;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Persistence.Specifications.Appointments;
 using Microsoft.EntityFrameworkCore;
@@ -17,15 +18,18 @@ public class AppointmentService : IAppointmentService
     private readonly IGenericRepository<Appointment> _appointmentRepository;
     private readonly IGenericRepository<WorkingHours> _workingHoursRepository;
     private readonly IGenericRepository<BlockedTime> _blockedTimeRepository;
+    private readonly INotificationService _notificationService;
 
     public AppointmentService(
         IGenericRepository<Appointment> appointmentRepository,
         IGenericRepository<WorkingHours> workingHoursRepository,
-        IGenericRepository<BlockedTime> blockedTimeRepository)
+        IGenericRepository<BlockedTime> blockedTimeRepository,
+        INotificationService notificationService)
     {
         _appointmentRepository = appointmentRepository;
         _workingHoursRepository = workingHoursRepository;
         _blockedTimeRepository = blockedTimeRepository;
+        _notificationService = notificationService;
     }
 
     public async Task<List<AvailableSlotResponse>> GetAvailableSlotsAsync(AvailableSlotsRequest request)
@@ -122,6 +126,9 @@ public class AppointmentService : IAppointmentService
 
         await _appointmentRepository.SaveChangesAsync();
 
+        //added email sender on booking endpoint for confirmation
+        await _notificationService.SendBookingConfirmationAsync(appointment);
+
         return MapToResponse(appointment);
     }
 
@@ -150,6 +157,7 @@ public class AppointmentService : IAppointmentService
 
         _appointmentRepository.Update(appointment);
         await _appointmentRepository.SaveChangesAsync();
+        await _notificationService.SendCancellationNotificationAsync(appointment);
     }
 
     public async Task RescheduleAppointmentAsync(Guid appointmentId, RescheduleAppointmentRequest request)
