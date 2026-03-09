@@ -48,7 +48,7 @@ public class AppointmentCleanupService : BackgroundService
         var cutoffTime = DateTime.UtcNow.AddHours(-2);
 
         var oldAppointments = await repository.GetAll()
-           .Where(a => a.AppointmentDate < cutoffTime
+           .Where(a => a.UpdatedAt < cutoffTime
                && (a.Status == AppointmentStatus.Completed
                || a.Status == AppointmentStatus.Cancelled
                || a.Status == AppointmentStatus.NoShow))
