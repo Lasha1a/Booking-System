@@ -64,6 +64,7 @@ public class WorkingHoursService : IWorkingHoursService
     {
         var workingHours = await _repository
             .GetQueryWithSpec(new WorkingHoursByIdAndProviderSpec(workingHoursId, providerId))
+            .AsTracking()
             .FirstOrDefaultAsync();
 
         if (workingHours == null)
@@ -79,6 +80,7 @@ public class WorkingHoursService : IWorkingHoursService
     {
         var workingHours = await _repository
             .GetQueryWithSpec(new WorkingHoursByIdAndProviderSpec(workingHoursId, providerId))
+            .AsTracking()
             .FirstOrDefaultAsync();
 
         if (workingHours == null)

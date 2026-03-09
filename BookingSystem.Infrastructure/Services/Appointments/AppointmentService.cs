@@ -129,6 +129,7 @@ public class AppointmentService : IAppointmentService
     {
         var appointment = await _appointmentRepository
             .GetQueryWithSpec(new AppointmentByIdSpec(appointmentId))
+            .AsTracking()
             .FirstOrDefaultAsync();
 
         if (appointment == null)
@@ -155,6 +156,7 @@ public class AppointmentService : IAppointmentService
     {
         var appointment = await _appointmentRepository
             .GetQueryWithSpec(new AppointmentByIdSpec(appointmentId))
+            .AsTracking()
             .FirstOrDefaultAsync();
 
         if (appointment == null)
@@ -179,6 +181,7 @@ public class AppointmentService : IAppointmentService
         await _appointmentRepository.SaveChangesAsync();
     }
 
+    //provider side
     public async Task<IReadOnlyList<AppointmentResponse>> GetProviderAppointmentsAsync(Guid providerId)
     {
         var appointments = await _appointmentRepository
@@ -196,6 +199,7 @@ public class AppointmentService : IAppointmentService
         var appointment = await _appointmentRepository
             .GetQueryWithSpec(new AppointmentByIdSpec(appointmentId))
             .Where(a => a.ProviderId == providerId)
+            .AsTracking() //ef core tracks the updates with this
             .FirstOrDefaultAsync();
 
         if (appointment == null)
@@ -212,6 +216,7 @@ public class AppointmentService : IAppointmentService
         var appointment = await _appointmentRepository
             .GetQueryWithSpec(new AppointmentByIdSpec(appointmentId))
             .Where(a => a.ProviderId == providerId)
+            .AsTracking()
             .FirstOrDefaultAsync();
 
         if (appointment == null)
@@ -260,7 +265,7 @@ public class AppointmentService : IAppointmentService
         }
     }
 
-
+    //helpers
     private AppointmentResponse MapToResponse(Appointment appointment)
     {
         return new AppointmentResponse

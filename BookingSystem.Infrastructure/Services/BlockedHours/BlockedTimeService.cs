@@ -64,6 +64,7 @@ public class BlockedTimeService : IBlockedTimeService
     {
         var blockedTime = await _repository
             .GetQueryWithSpec(new BlockedTimeByIdAndProviderSpec(blockedTimeId, providerId))
+            .AsTracking()
             .FirstOrDefaultAsync();
 
         if (blockedTime == null)
@@ -88,6 +89,7 @@ public class BlockedTimeService : IBlockedTimeService
     {
         var blockedTime = await _repository
             .GetQueryWithSpec(new BlockedTimeByIdAndProviderSpec(blockedTimeId, providerId))
+            .AsTracking()
             .FirstOrDefaultAsync();
 
         if (blockedTime == null)
