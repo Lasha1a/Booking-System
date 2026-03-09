@@ -1,12 +1,16 @@
 ﻿using BookingSystem.Application.Interfaces.Appointments;
 using BookingSystem.Application.Interfaces.Auth;
 using BookingSystem.Application.Interfaces.BlockedHours;
+using BookingSystem.Application.Interfaces.Email;
+using BookingSystem.Application.Interfaces.Notification;
 using BookingSystem.Application.Interfaces.Provider;
 using BookingSystem.Application.Interfaces.WorkingHours;
 using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Appointments;
 using BookingSystem.Infrastructure.Services.Auth;
 using BookingSystem.Infrastructure.Services.BlockedHours;
+using BookingSystem.Infrastructure.Services.Email;
+using BookingSystem.Infrastructure.Services.Notifications;
 using BookingSystem.Infrastructure.Services.Provider;
 using BookingSystem.Infrastructure.Services.WorkingHour;
 using BookingSystem.Infrastructure.Settings;
@@ -68,6 +72,9 @@ public static class DependencyInjection
         services.AddScoped<IWorkingHoursService, WorkingHoursService>();
         services.AddScoped<IBlockedTimeService, BlockedTimeService>();
         services.AddScoped<IAppointmentService, AppointmentService>();
+
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }
