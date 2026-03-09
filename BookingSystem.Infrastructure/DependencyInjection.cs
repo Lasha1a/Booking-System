@@ -4,8 +4,8 @@ using BookingSystem.Application.Interfaces.BlockedHours;
 using BookingSystem.Application.Interfaces.Email;
 using BookingSystem.Application.Interfaces.Notification;
 using BookingSystem.Application.Interfaces.Provider;
+using BookingSystem.Application.Interfaces.RedisCache;
 using BookingSystem.Application.Interfaces.WorkingHours;
-using Microsoft.Extensions.Hosting;
 using BookingSystem.Infrastructure.BackgroundServices;
 using BookingSystem.Infrastructure.Security;
 using BookingSystem.Infrastructure.Services.Appointments;
@@ -14,11 +14,13 @@ using BookingSystem.Infrastructure.Services.BlockedHours;
 using BookingSystem.Infrastructure.Services.Email;
 using BookingSystem.Infrastructure.Services.Notifications;
 using BookingSystem.Infrastructure.Services.Provider;
+using BookingSystem.Infrastructure.Services.RedisCache;
 using BookingSystem.Infrastructure.Services.WorkingHour;
 using BookingSystem.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -68,7 +70,9 @@ public static class DependencyInjection
 
 
         services.AddScoped<ITokenGenerator, TokenGenerator>();
+
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IProviderService, ProviderService>();
         services.AddScoped<IWorkingHoursService, WorkingHoursService>();
@@ -80,6 +84,8 @@ public static class DependencyInjection
 
         //background worker
         services.AddHostedService<AppointmentCleanupService>();
+
+        services.AddScoped<ICacheService, CacheService>();
 
         return services;
     }
