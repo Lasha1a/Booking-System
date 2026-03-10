@@ -1,5 +1,6 @@
 ﻿using BookingSystem.Application.DTOs.WorkingHours;
 using BookingSystem.Application.Interfaces.GenericRepo;
+using BookingSystem.Application.Interfaces.RedisCache;
 using BookingSystem.Application.Interfaces.WorkingHours;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Persistence.Specifications.WorkingHour;
@@ -15,10 +16,12 @@ namespace BookingSystem.Infrastructure.Services.WorkingHour;
 public class WorkingHoursService : IWorkingHoursService
 {
     private readonly IGenericRepository<WorkingHours> _repository;
+    private readonly ICacheService _cacheService;
 
-    public WorkingHoursService(IGenericRepository<WorkingHours> repository)
+    public WorkingHoursService(IGenericRepository<WorkingHours> repository, ICacheService cacheService)
     {
         _repository = repository;
+        _cacheService = cacheService;
     }
 
     public async Task AddWorkingHoursAsync(Guid providerId, AddWorkingHoursRequest request)
@@ -40,10 +43,18 @@ public class WorkingHoursService : IWorkingHoursService
 
         await _repository.AddAsync(workingHours);
         await _repository.SaveChangesAsync();
+
+        // Invalidate cache
+        await _cacheService.RemoveAsync($"provider:{providerId}:working-hours");
     }
 
     public async Task<IReadOnlyList<WorkingHoursResponse>> GetWorkingHoursAsync(Guid providerId)
     {
+        var cacheKey = $"provider:{providerId}:working-hours";
+
+        var cached = await _cacheService.GetAsync<List<WorkingHoursResponse>>(cacheKey);
+        if (cached != null) return cached;
+
         var workingHours = await _repository
             .GetQueryWithSpec(new WorkingHoursByProviderSpec(providerId))
             .OrderBy(wh => wh.DayOfWeek)
@@ -56,6 +67,8 @@ public class WorkingHoursService : IWorkingHoursService
                 IsActive = wh.IsActive
             })
             .ToListAsync();
+
+        await _cacheService.SetAsync(cacheKey, workingHours, TimeSpan.FromMinutes(10));
 
         return workingHours;
     }
@@ -74,6 +87,8 @@ public class WorkingHoursService : IWorkingHoursService
 
         _repository.Update(workingHours);
         await _repository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:working-hours");
     }
 
     public async Task DeleteWorkingHoursAsync(Guid providerId, Guid workingHoursId)
@@ -88,5 +103,7 @@ public class WorkingHoursService : IWorkingHoursService
 
         _repository.Delete(workingHours);
         await _repository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:working-hours");
     }
 }

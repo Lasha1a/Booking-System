@@ -1,6 +1,7 @@
 ﻿using BookingSystem.Application.DTOs.BlockedTimes;
 using BookingSystem.Application.Interfaces.BlockedHours;
 using BookingSystem.Application.Interfaces.GenericRepo;
+using BookingSystem.Application.Interfaces.RedisCache;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Persistence.Specifications.BlockedHours;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,12 @@ namespace BookingSystem.Infrastructure.Services.BlockedHours;
 public class BlockedTimeService : IBlockedTimeService
 {
     private readonly IGenericRepository<BlockedTime> _repository;
+    private readonly ICacheService _cacheService;
 
-    public BlockedTimeService(IGenericRepository<BlockedTime> repository)
+    public BlockedTimeService(IGenericRepository<BlockedTime> repository, ICacheService cacheService)
     {
         _repository = repository;
+        _cacheService = cacheService;
     }
 
     public async Task AddBlockedTimeAsync(Guid providerId, AddBlockedTimeRequest request)
@@ -40,10 +43,17 @@ public class BlockedTimeService : IBlockedTimeService
 
         await _repository.AddAsync(blockedTime);
         await _repository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:blocked-times");
     }
 
     public async Task<IReadOnlyList<BlockedTimeResponse>> GetBlockedTimesAsync(Guid providerId)
     {
+        var cacheKey = $"provider:{providerId}:blocked-times";
+
+        var cached = await _cacheService.GetAsync<List<BlockedTimeResponse>>(cacheKey);
+        if (cached != null) return cached;
+
         var blockedTimes = await _repository
             .GetQueryWithSpec(new BlockedTimesByProviderSpec(providerId))
             .OrderBy(bt => bt.StartDate)
@@ -56,6 +66,8 @@ public class BlockedTimeService : IBlockedTimeService
                 CreatedAt = bt.CreatedAt
             })
             .ToListAsync();
+
+        await _cacheService.SetAsync(cacheKey, blockedTimes, TimeSpan.FromMinutes(10));
 
         return blockedTimes;
     }
@@ -83,6 +95,8 @@ public class BlockedTimeService : IBlockedTimeService
 
         _repository.Update(blockedTime);
         await _repository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:blocked-times");
     }
 
     public async Task DeleteBlockedTimeAsync(Guid providerId, Guid blockedTimeId)
@@ -97,5 +111,7 @@ public class BlockedTimeService : IBlockedTimeService
 
         _repository.Delete(blockedTime);
         await _repository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:blocked-times");
     }
 }

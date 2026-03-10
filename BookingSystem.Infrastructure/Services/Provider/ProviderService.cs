@@ -1,7 +1,9 @@
 ﻿using BookingSystem.Application.DTOs.Provider;
 using BookingSystem.Application.Interfaces.GenericRepo;
 using BookingSystem.Application.Interfaces.Provider;
+using BookingSystem.Application.Interfaces.RedisCache;
 using BookingSystem.Domain.Entities;
+using BookingSystem.Infrastructure.Services.RedisCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +15,27 @@ namespace BookingSystem.Infrastructure.Services.Provider;
 public class ProviderService : IProviderService
 {
     private readonly IGenericRepository<ServiceProvider> _repository;
+    private readonly ICacheService _cacheService;
 
-    public ProviderService(IGenericRepository<ServiceProvider> repository)
+
+    public ProviderService(IGenericRepository<ServiceProvider> repository, ICacheService cacheService)
     {
         _repository = repository;
+        _cacheService = cacheService;
     }
 
     public async Task<ProviderResponse> GetProfileAsync(Guid providerId)
     {
+
+
+        var cacheKey  = $"provider:{providerId}:profile";
+
+        //check cache
+        var cached = await _cacheService.GetAsync<ProviderResponse>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
         var provider = await _repository.GetByIdAsync(providerId);
 
         if (provider == null)
@@ -28,7 +43,7 @@ public class ProviderService : IProviderService
             throw new KeyNotFoundException("Provider not found");
         }
 
-        return new ProviderResponse
+        var response = new ProviderResponse
         {
             Id = provider.Id,
             Name = provider.Name,
@@ -36,6 +51,11 @@ public class ProviderService : IProviderService
             Specialty = provider.Specialty,
             IsActive = provider.IsActive
         };
+
+        // Save to cache
+        await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(10));
+
+        return response;
     }
 
     public async Task UpdateProfileAsync(Guid providerId, UpdateProviderRequest request)
@@ -50,6 +70,8 @@ public class ProviderService : IProviderService
 
         _repository.Update(provider);
         await _repository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:profile");
     }
 
     public async Task DeleteProfileAsync(Guid providerId)
@@ -61,5 +83,7 @@ public class ProviderService : IProviderService
 
         _repository.Delete(provider);
         await _repository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:profile");
     }
 }

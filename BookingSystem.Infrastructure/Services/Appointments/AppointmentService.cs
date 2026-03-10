@@ -2,6 +2,7 @@
 using BookingSystem.Application.Interfaces.Appointments;
 using BookingSystem.Application.Interfaces.GenericRepo;
 using BookingSystem.Application.Interfaces.Notification;
+using BookingSystem.Application.Interfaces.RedisCache;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Persistence.Specifications.Appointments;
 using Microsoft.EntityFrameworkCore;
@@ -19,21 +20,29 @@ public class AppointmentService : IAppointmentService
     private readonly IGenericRepository<WorkingHours> _workingHoursRepository;
     private readonly IGenericRepository<BlockedTime> _blockedTimeRepository;
     private readonly INotificationService _notificationService;
-
+    private readonly ICacheService _cacheService;
     public AppointmentService(
         IGenericRepository<Appointment> appointmentRepository,
         IGenericRepository<WorkingHours> workingHoursRepository,
         IGenericRepository<BlockedTime> blockedTimeRepository,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        ICacheService cacheService)
     {
         _appointmentRepository = appointmentRepository;
         _workingHoursRepository = workingHoursRepository;
         _blockedTimeRepository = blockedTimeRepository;
         _notificationService = notificationService;
+        _cacheService = cacheService;
     }
 
     public async Task<List<AvailableSlotResponse>> GetAvailableSlotsAsync(AvailableSlotsRequest request)
     {
+        var cacheKey = $"provider:{request.ProviderId}:slots:{request.Date}:{request.DurationMinutes}";
+
+        // Check cache first
+        var cached = await _cacheService.GetAsync<List<AvailableSlotResponse>>(cacheKey);
+        if (cached != null) return cached;
+
         var dayOfWeek = request.Date.DayOfWeek;
 
         //Check if provider works that day
@@ -86,6 +95,8 @@ public class AppointmentService : IAppointmentService
             slotStart = slotEnd;
         }
 
+        await _cacheService.SetAsync(cacheKey, availableSlots, TimeSpan.FromMinutes(5));
+
         return availableSlots;
     }
 
@@ -126,6 +137,10 @@ public class AppointmentService : IAppointmentService
 
         await _appointmentRepository.SaveChangesAsync();
 
+        // Invalidate cache
+        await _cacheService.RemoveAsync($"provider:{request.ProviderId}:appointments");
+        await _cacheService.RemoveAsync($"provider:{request.ProviderId}:slots:{DateOnly.FromDateTime(request.AppointmentDate)}:{request.EndTime - request.StartTime}");
+
         //added email sender on booking endpoint for confirmation
         await _notificationService.SendBookingConfirmationAsync(appointment);
 
@@ -157,7 +172,12 @@ public class AppointmentService : IAppointmentService
 
         _appointmentRepository.Update(appointment);
         await _appointmentRepository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{appointment.ProviderId}:appointments");
+
         await _notificationService.SendCancellationNotificationAsync(appointment);
+
+        
     }
 
     public async Task RescheduleAppointmentAsync(Guid appointmentId, RescheduleAppointmentRequest request)
@@ -187,19 +207,31 @@ public class AppointmentService : IAppointmentService
 
         _appointmentRepository.Update(appointment);
         await _appointmentRepository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{appointment.ProviderId}:appointments");
     }
 
     //provider side
     public async Task<IReadOnlyList<AppointmentResponse>> GetProviderAppointmentsAsync(Guid providerId)
     {
+        var cacheKey = $"provider:{providerId}:appointments";
+
+        // 1. Check cache first
+        var cached = await _cacheService.GetAsync<List<AppointmentResponse>>(cacheKey);
+        if (cached != null) return cached;
+
         var appointments = await _appointmentRepository
             .GetQueryWithSpec(new AppointmentsByProviderSpec(providerId))
             .OrderBy(a => a.AppointmentDate)
             .ThenBy(a => a.StartTime)
-            .Select(a => MapToResponseExpression(a))
             .ToListAsync();
 
-        return appointments;
+        var response = appointments.Select(a => MapToResponseExpression(a)).ToList();
+
+        await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(5));
+
+
+        return response;
     }
 
     public async Task CompleteAppointmentAsync(Guid providerId, Guid appointmentId)
@@ -217,6 +249,8 @@ public class AppointmentService : IAppointmentService
 
         _appointmentRepository.Update(appointment);
         await _appointmentRepository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:appointments");
     }
 
     public async Task MarkAsNoShowAsync(Guid providerId, Guid appointmentId)
@@ -234,6 +268,8 @@ public class AppointmentService : IAppointmentService
 
         _appointmentRepository.Update(appointment);
         await _appointmentRepository.SaveChangesAsync();
+
+        await _cacheService.RemoveAsync($"provider:{providerId}:appointments");
     }
 
 
@@ -273,7 +309,6 @@ public class AppointmentService : IAppointmentService
         }
     }
 
-    //helpers
     private AppointmentResponse MapToResponse(Appointment appointment)
     {
         return new AppointmentResponse
